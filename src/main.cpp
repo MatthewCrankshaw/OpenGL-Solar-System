@@ -163,12 +163,12 @@ int main() {
 	// URL: http://www.humus.name
 	// License: Creative Commons Attribution 3.0 Unported License.
 	// Filenames
-	const char *filenames[6] = {"images/posx.jpg",
-								"images/negx.jpg",
-								"images/negy.jpg",
-								"images/posy.jpg",
-								"images/posz.jpg",
-								"images/negz.jpg"};
+	const char *filenames[6] = {"images/posR.png",
+								"images/negR.png",
+								"images/negT.png",
+								"images/posT.png",
+								"images/posS.png",
+								"images/negS.png"};
 
 	// Load Cubemap
 	GLuint texture = loadTextureCubeMap(filenames, x, y, n);
@@ -295,8 +295,9 @@ int main() {
 	glUseProgram(skybox_program);
 	glUniformMatrix4fv(glGetUniformLocation(skybox_program, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-	//glUseProgram(sphere_program);
-	//glUniformMatrix4fv(glGetUniformLocation(sphere_program, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+	glUseProgram(sphere_program);
+	glUniformMatrix4fv(glGetUniformLocation(sphere_program, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
 	// ----------------------------------------
 	// Main Render loop
 	// ----------------------------------------
@@ -319,10 +320,10 @@ int main() {
 		// Update Camera (poll keyboard)
 		camera->update(dt);
 
+
 		// Copy Skybox View Matrix to Shader
 		glUseProgram(skybox_program);
-		glUniformMatrix4fv(glGetUniformLocation(skybox_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
-        //glUniformMatrix4fv(glGetUniformLocation(skybox_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getOrientationMatrix()));
+        glUniformMatrix4fv(glGetUniformLocation(skybox_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getOrientationMatrix()));
 
 		// ----------------------------------------
 		// Draw Skybox
@@ -357,14 +358,17 @@ int main() {
 		glBindVertexArray(0);
 		// ----------------------------------------
 
+        // Copy Skybox View Matrix to Shader
+		glUseProgram(sphere_program);
+		glUniformMatrix4fv(glGetUniformLocation(sphere_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
 
-		//glUseProgram(sphere_program);
-		//render sphere
-		glBindVertexArray(sphere_vao);
+
+		glEnable(GL_DEPTH_TEST);
+		glUseProgram(sphere_program);
+        glBindVertexArray(sphere_vao);
 		glDrawElements(GL_TRIANGLES, sphere_indices.size() * 3, GL_UNSIGNED_INT, NULL);
 		glBindVertexArray(0);
 
-		glDisable(GL_DEPTH_TEST);
 
 
 		// Swap the back and front buffers
