@@ -1,0 +1,164 @@
+# depslib dependency file v1.0
+1525040682 source:/home/matthew/Documents/Uni/Computer Graphics/Assignment 3/src/camera.cpp
+	"camera.h"
+
+1526792751 /home/matthew/Documents/Uni/Computer Graphics/Assignment 3/include/camera.h
+	<iostream>
+	<GL/glew.h>
+	<GL/eglew.h>
+	<GL/osmesa.h>
+	<GL/wglew.h>
+	<GL/glxew.h>
+	<GLFW/glfw3.h>
+	<GLFW/glfw3.h>
+	<OpenGL/gl3.h>
+	<OpenGL/gl3ext.h>
+	<OpenGL/gl3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+	<glm/glm.hpp>
+	<glm/gtc/matrix_transform.hpp>
+	<glm/gtc/type_ptr.hpp>
+	<glm/gtc/constants.hpp>
+	<glm/gtx/string_cast.hpp>
+	<glm/gtx/quaternion.hpp>
+
+1525035684 source:/home/matthew/Documents/Uni/Computer Graphics/Assignment 3/src/geometry.cpp
+	"geometry.h"
+
+1526796557 /home/matthew/Documents/Uni/Computer Graphics/Assignment 3/include/geometry.h
+	<iostream>
+	<vector>
+	<GL/glew.h>
+	<GL/eglew.h>
+	<GL/osmesa.h>
+	<GL/wglew.h>
+	<GL/glxew.h>
+	<GLFW/glfw3.h>
+	<GLFW/glfw3.h>
+	<OpenGL/gl3.h>
+	<OpenGL/gl3ext.h>
+	<OpenGL/gl3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+	"glm/glm.hpp"
+	"glm/gtx/string_cast.hpp"
+
+1525038010 source:/home/matthew/Documents/Uni/Computer Graphics/Assignment 3/src/image.cpp
+	"image.h"
+	"stb_image.h"
+
+1526792815 /home/matthew/Documents/Uni/Computer Graphics/Assignment 3/include/image.h
+	<iostream>
+	<GL/glew.h>
+	<GL/eglew.h>
+	<GL/osmesa.h>
+	<GL/wglew.h>
+	<GL/glxew.h>
+	<GLFW/glfw3.h>
+	<GLFW/glfw3.h>
+	<OpenGL/gl3.h>
+	<OpenGL/gl3ext.h>
+	<OpenGL/gl3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+	<glm/glm.hpp>
+	<glm/gtc/matrix_transform.hpp>
+	<glm/gtc/type_ptr.hpp>
+
+1522737446 /home/matthew/Documents/Uni/Computer Graphics/Assignment 3/include/stb_image.h
+	"stb_image.h"
+	<stdio.h>
+	<stdarg.h>
+	<stddef.h>
+	<stdlib.h>
+	<string.h>
+	<limits.h>
+	<math.h>
+	<stdio.h>
+	<assert.h>
+	<stdint.h>
+	<emmintrin.h>
+	<intrin.h>
+	<arm_neon.h>
+
+1526798316 source:/home/matthew/Documents/Uni/Computer Graphics/Assignment 3/src/main.cpp
+	<iostream>
+	<fstream>
+	<cmath>
+	<GL/glew.h>
+	<GL/eglew.h>
+	<GL/osmesa.h>
+	<GL/wglew.h>
+	<GL/glxew.h>
+	<GLFW/glfw3.h>
+	<GLFW/glfw3.h>
+	<OpenGL/gl3.h>
+	<OpenGL/gl3ext.h>
+	<glm/glm.hpp>
+	<glm/gtc/matrix_transform.hpp>
+	<glm/gtc/type_ptr.hpp>
+	"shader.h"
+	"utils.h"
+	"geometry.h"
+	"image.h"
+	"camera.h"
+
+1526792098 /home/matthew/Documents/Uni/Computer Graphics/Assignment 3/include/shader.h
+	<iostream>
+	<fstream>
+	<GL/glew.h>
+	<GL/eglew.h>
+	<GL/osmesa.h>
+	<GL/wglew.h>
+	<GL/glxew.h>
+	<GLFW/glfw3.h>
+	<GLFW/glfw3.h>
+	<OpenGL/gl3.h>
+	<OpenGL/gl3ext.h>
+	<OpenGL/gl3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+
+1526792115 /home/matthew/Documents/Uni/Computer Graphics/Assignment 3/include/utils.h
+	<iostream>
+	<fstream>
+	<GL/glew.h>
+	<GL/eglew.h>
+	<GL/osmesa.h>
+	<GL/wglew.h>
+	<GL/glxew.h>
+	<GLFW/glfw3.h>
+	<GLFW/glfw3.h>
+	<OpenGL/gl3.h>
+	<OpenGL/gl3ext.h>
+	<OpenGL/gl3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+	<GL/glew.h>
+	<GL/glut.h>
+	<GLFW/glfw3.h>
+
+1526793436 source:/home/matthew/Documents/Uni/Computer Graphics/Assignment 3/src/shader.cpp
+	"shader.h"
+
+1522737446 source:/home/matthew/Documents/Uni/Computer Graphics/Assignment 3/src/utils.cpp
+	"utils.h"
+

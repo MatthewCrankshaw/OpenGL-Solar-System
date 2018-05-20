@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Assignment3" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Assignment3" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Assignment3" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="include" />
+		</Compiler>
+		<Linker>
+			<Add library="GL" />
+			<Add library="GLEW" />
+			<Add library="glfw" />
+		</Linker>
+		<Unit filename="images/license.txt" />
+		<Unit filename="images/negR.png" />
+		<Unit filename="images/negS.png" />
+		<Unit filename="images/negT.png" />
+		<Unit filename="images/negx.jpg" />
+		<Unit filename="images/negy.jpg" />
+		<Unit filename="images/negz.jpg" />
+		<Unit filename="images/posR.png" />
+		<Unit filename="images/posS.png" />
+		<Unit filename="images/posT.png" />
+		<Unit filename="images/posx.jpg" />
+		<Unit filename="images/posy.jpg" />
+		<Unit filename="images/posz.jpg" />
+		<Unit filename="include/camera.h" />
+		<Unit filename="include/geometry.h" />
+		<Unit filename="include/image.h" />
+		<Unit filename="include/shader.h" />
+		<Unit filename="include/stb_image.h" />
+		<Unit filename="include/transforms.h" />
+		<Unit filename="include/utils.h" />
+		<Unit filename="shader/skybox.frag.glsl" />
+		<Unit filename="shader/skybox.vert.glsl" />
+		<Unit filename="src/camera.cpp" />
+		<Unit filename="src/geometry.cpp" />
+		<Unit filename="src/image.cpp" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/shader.cpp" />
+		<Unit filename="src/utils.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
