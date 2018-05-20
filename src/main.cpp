@@ -87,10 +87,22 @@ void rotateX(float theta, float Rx[16]);
 void rotateY(float theta, float Ry[16]);
 void rotateZ(float theta, float Rz[16]);
 void rotate(float theta, float rx, float ry, float rz, float R[16]);
+void scale(float sx, float sy, float sz, float S[16]);
 
-// --------------------------------------------------------------------------------
-// Example 13 - Skybox
-// --------------------------------------------------------------------------------
+//order goes distrance from sun starting at sun
+//Sun, mercury,venus, earth, mars, jupiter, saturn, uranus, neptune
+float planet_sizes[9] =
+{
+    1.0f,
+    0.00349f,
+    0.00866f,
+    0.00912f,
+    0.00485f,
+    0.10f,
+    0.08f,
+    0.0363f,
+    0.03525f
+};
 int main() {
 	// Set Error Callback
 	glfwSetErrorCallback(onError);
@@ -374,14 +386,19 @@ int main() {
         //---------------------------------------
 
         for(int i = 0; i < num_spheres; i++){
+            float sc[16];
             float translation[16];
+            float temp[16];
             float rotation[16];
             float model[16];
 
+            scale(planet_sizes[i], planet_sizes[i], planet_sizes[i], sc);
             translate(1.5f * i, 0.0f, 0.0f, translation);
-            rotateY(glfwGetTime()+ i, rotation);
+            multiply44(sc, translation, temp);
 
-            multiply44(rotation, translation, model);
+            rotateY(glfwGetTime()*0.2, rotation);
+
+            multiply44(rotation, temp, model);
 
             glUseProgram(sphere_program);
 
@@ -513,6 +530,14 @@ void rotate(float theta, float rx, float ry, float rz, float R[16]) {
 	R[1]  = (1-cosTheta)*rx*ry + rz*sinTheta;  R[5]  = cosTheta + (1-cosTheta)*ry*ry;     R[9]  = (1 - cosTheta)*ry*rz - rx*sinTheta;  R[13] = 0.0f;
 	R[2]  = (1-cosTheta)*rx*rz - ry*sinTheta;  R[6]  = (1-cosTheta)*ry*rz + rx*sinTheta;  R[10] = cosTheta + (1-cosTheta)*rz*rz;       R[14] = 0.0f;
 	R[3]  = 0.0f;                              R[7]  = 0.0f;                              R[11] = 0.0f;                                R[15] = 1.0f;
+}
+
+void scale(float sx, float sy, float sz, float S[16]) {
+	// Scaling Matrix
+	S[0]  = sx;    S[4]  =  0.0f;  S[8]  = 0.0f;  S[12] = 0.0f;
+	S[1]  = 0.0f;  S[5]  =  sy;    S[9]  = 0.0f;  S[13] = 0.0f;
+	S[2]  = 0.0f;  S[6]  =  0.0f;  S[10] = sz;    S[14] = 0.0f;
+	S[3]  = 0.0f;  S[7]  =  0.0f;  S[11] = 0.0f;  S[15] = 1.0f;
 }
 
 
