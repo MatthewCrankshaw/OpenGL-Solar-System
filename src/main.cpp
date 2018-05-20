@@ -81,6 +81,13 @@ void onCursorPosition(GLFWwindow *window, double x, double y) {
 	camera->onCursorPosition(window, x, y);
 }
 
+void translate(float tx, float ty, float tz, float T[16]);
+void multiply44(float a[16], float b[16], float c[16]);
+void rotateX(float theta, float Rx[16]);
+void rotateY(float theta, float Ry[16]);
+void rotateZ(float theta, float Rz[16]);
+void rotate(float theta, float rx, float ry, float rz, float R[16]);
+
 // --------------------------------------------------------------------------------
 // Example 13 - Skybox
 // --------------------------------------------------------------------------------
@@ -177,6 +184,7 @@ int main() {
 	//------------------------------------------
 	// Sphere
 	//------------------------------------------
+	const int num_spheres = 8;
     glUseProgram(sphere_program);
 	//buffer data
     vector<glm::vec4> sphere_buf;
@@ -185,38 +193,41 @@ int main() {
 	createSphereData(sphere_buf, sphere_indices, 0.1f, 50, 50);
 
     //set up the vao, vbo and ebo for spheres
-	GLuint sphere_vao = 0;
-	GLuint sphere_vbo = 0;
-	GLuint sphere_ebo = 0;
+	GLuint sphere_vao[num_spheres];
+	GLuint sphere_vbo[num_spheres];
+	GLuint sphere_ebo[num_spheres];
 
-    glGenVertexArrays(1, &sphere_vao);
-	glGenBuffers(1, &sphere_vbo);
-	glGenBuffers(1, &sphere_ebo);
+	for(int i = 0; i < num_spheres; i++){
+        glGenVertexArrays(1, &sphere_vao[i]);
+        glGenBuffers(1, &sphere_vbo[i]);
+        glGenBuffers(1, &sphere_ebo[i]);
 
-    glBindVertexArray(sphere_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, sphere_vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere_ebo);
+        glBindVertexArray(sphere_vao[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, sphere_vbo[i]);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere_ebo[i]);
 
-    // Load Vertex Data
-	glBufferData(GL_ARRAY_BUFFER, sphere_buf.size() * sizeof(glm::vec4), sphere_buf.data(), GL_STATIC_DRAW);
+        // Load Vertex Data
+        glBufferData(GL_ARRAY_BUFFER, sphere_buf.size() * sizeof(glm::vec4), sphere_buf.data(), GL_STATIC_DRAW);
 
-	// Load Element Data
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere_indices.size() * sizeof(glm::ivec3), sphere_indices.data(), GL_STATIC_DRAW);
+        // Load Element Data
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere_indices.size() * sizeof(glm::ivec3), sphere_indices.data(), GL_STATIC_DRAW);
 
-	//set position location
-	//TODO change the program
-	GLuint sphere_posLoc = glGetAttribLocation(sphere_program, "vert_Position");
+        //set position location
+        //TODO change the program
+        GLuint sphere_posLoc = glGetAttribLocation(sphere_program, "vert_Position");
 
-    // Set Vertex Attribute Pointers
-	glVertexAttribPointer(sphere_posLoc, 4, GL_FLOAT, GL_FALSE, 4 * 3 * sizeof(GLfloat), NULL);
+        // Set Vertex Attribute Pointers
+        glVertexAttribPointer(sphere_posLoc, 4, GL_FLOAT, GL_FALSE, 4 * 3 * sizeof(GLfloat), NULL);
 
-    // Enable Vertex Attribute Arrays
-	glEnableVertexAttribArray(sphere_posLoc);
+        // Enable Vertex Attribute Arrays
+        glEnableVertexAttribArray(sphere_posLoc);
 
-	// Unbind VAO, VBO & EBO
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        // Unbind VAO, VBO & EBO
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+
 
 	// ----------------------------------------
 	// Skybox
@@ -358,16 +369,34 @@ int main() {
 		glBindVertexArray(0);
 		// ----------------------------------------
 
-        // Copy Skybox View Matrix to Shader
-		glUseProgram(sphere_program);
-		glUniformMatrix4fv(glGetUniformLocation(sphere_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
+        //---------------------------------------
+        //draw spheres
+        //---------------------------------------
 
+        for(int i = 0; i < num_spheres; i++){
+            float translation[16];
+            float rotation[16];
+            float model[16];
 
-		glEnable(GL_DEPTH_TEST);
-		glUseProgram(sphere_program);
-        glBindVertexArray(sphere_vao);
-		glDrawElements(GL_TRIANGLES, sphere_indices.size() * 3, GL_UNSIGNED_INT, NULL);
-		glBindVertexArray(0);
+            translate(1.5f * i, 0.0f, 0.0f, translation);
+            rotateY(glfwGetTime()+ i, rotation);
+
+            multiply44(rotation, translation, model);
+
+            glUseProgram(sphere_program);
+
+            glUniformMatrix4fv(glGetUniformLocation(sphere_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
+
+            GLint modelLoc = glGetUniformLocation(sphere_program, "u_Model");
+
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model);
+
+            glEnable(GL_DEPTH_TEST);
+            glUseProgram(sphere_program);
+            glBindVertexArray(sphere_vao[i]);
+            glDrawElements(GL_TRIANGLES, sphere_indices.size() * 3, GL_UNSIGNED_INT, NULL);
+            glBindVertexArray(0);
+        }
 
 
 
@@ -383,9 +412,11 @@ int main() {
 	glDeleteBuffers(1, &skybox_vbo);
 	glDeleteBuffers(1, &skybox_ebo);
 
-	glDeleteVertexArrays(1, &sphere_vao);
-	glDeleteBuffers(1, &sphere_vbo);
-	glDeleteBuffers(1, &sphere_ebo);
+	for(int i = 0; i < num_spheres; i++){
+        glDeleteVertexArrays(1, &sphere_vao[i]);
+        glDeleteBuffers(1, &sphere_vbo[i]);
+        glDeleteBuffers(1, &sphere_ebo[i]);
+	}
 
 	// Delete Program
 	glDeleteProgram(skybox_program);
@@ -399,6 +430,89 @@ int main() {
 	glfwTerminate();
 
 	return 0;
+}
+
+void translate(float tx, float ty, float tz, float T[16]) {
+	T[0]  = 1.0f;  T[4]  = 0.0f;  T[8]  = 0.0f;  T[12] = tx;
+	T[1]  = 0.0f;  T[5]  = 1.0f;  T[9]  = 0.0f;  T[13] = ty;
+	T[2]  = 0.0f;  T[6]  = 0.0f;  T[10] = 1.0f;  T[14] = tz;
+	T[3]  = 0.0f;  T[7]  = 0.0f;  T[11] = 0.0f;  T[15] = 1.0f;
+}
+
+void multiply44(float a[16], float b[16], float c[16]) {
+	// Multiply each row of A with each column of B to give C
+	c[0]  = a[0]*b[0]  + a[4]*b[1]  + a[8]*b[2]   + a[12]*b[3];
+	c[4]  = a[0]*b[4]  + a[4]*b[5]  + a[8]*b[6]   + a[12]*b[7];
+	c[8]  = a[0]*b[8]  + a[4]*b[9]  + a[8]*b[10]  + a[12]*b[11];
+	c[12] = a[0]*b[12] + a[4]*b[13] + a[8]*b[14]  + a[12]*b[15];
+
+	c[1]  = a[1]*b[0]  + a[5]*b[1]  + a[9]*b[2]   + a[13]*b[3];
+	c[5]  = a[1]*b[4]  + a[5]*b[5]  + a[9]*b[6]   + a[13]*b[7];
+	c[9]  = a[1]*b[8]  + a[5]*b[9]  + a[9]*b[10]  + a[13]*b[11];
+	c[13] = a[1]*b[12] + a[5]*b[13] + a[9]*b[14]  + a[13]*b[15];
+
+	c[2]  = a[2]*b[0]  + a[6]*b[1]  + a[10]*b[2]  + a[14]*b[3];
+	c[6]  = a[2]*b[4]  + a[6]*b[5]  + a[10]*b[6]  + a[14]*b[7];
+	c[10] = a[2]*b[8]  + a[6]*b[9]  + a[10]*b[10] + a[14]*b[11];
+	c[14] = a[2]*b[12] + a[6]*b[13] + a[10]*b[14] + a[14]*b[15];
+
+	c[3]  = a[3]*b[0]  + a[7]*b[1]  + a[11]*b[2]  + a[15]*b[3];
+	c[7]  = a[3]*b[4]  + a[7]*b[5]  + a[11]*b[6]  + a[15]*b[7];
+	c[11] = a[3]*b[8]  + a[7]*b[9]  + a[11]*b[10] + a[15]*b[11];
+	c[15] = a[3]*b[12] + a[7]*b[13] + a[11]*b[14] + a[15]*b[15];
+}
+
+// Create a rotation matrix around the X-axis
+void rotateX(float theta, float Rx[16]) {
+	// Calculate sin(theta) and cos(theta)
+	float sinTheta = sin(theta);
+	float cosTheta = cos(theta);
+
+	Rx[0]  = 1.0f;  Rx[4]  = 0.0f;      Rx[8]  =      0.0f;  Rx[12] = 0.0f;
+	Rx[1]  = 0.0f;  Rx[5]  = cosTheta;  Rx[9]  = -sinTheta;  Rx[13] = 0.0f;
+	Rx[2]  = 0.0f;  Rx[6]  = sinTheta;  Rx[10] =  cosTheta;  Rx[14] = 0.0f;
+	Rx[3]  = 0.0f;  Rx[7]  = 0.0f;      Rx[11] =      0.0f;  Rx[15] = 1.0f;
+}
+
+// Create a rotation matrix around the Y-axis
+void rotateY(float theta, float Ry[16]) {
+	// Calculate sin(theta) and cos(theta)
+	float sinTheta = sin(theta);
+	float cosTheta = cos(theta);
+
+	Ry[0]  =  cosTheta;  Ry[4]  = 0.0f;  Ry[8]  =  sinTheta;  Ry[12] = 0.0f;
+	Ry[1]  =  0.0f;      Ry[5]  = 1.0f;  Ry[9]  =      0.0f;  Ry[13] = 0.0f;
+	Ry[2]  = -sinTheta;  Ry[6]  = 0.0f;  Ry[10] =  cosTheta;  Ry[14] = 0.0f;
+	Ry[3]  =  0.0f;      Ry[7]  = 0.0f;  Ry[11] =      0.0f;  Ry[15] = 1.0f;
+}
+
+// Create a rotation matrix around the Z-axis
+void rotateZ(float theta, float Rz[16]) {
+	// Calculate sin(theta) and cos(theta)
+	float sinTheta = sin(theta);
+	float cosTheta = cos(theta);
+
+	Rz[0]  = cosTheta;  Rz[4]  = -sinTheta;  Rz[8]  = 0.0f;  Rz[12] = 0.0f;
+	Rz[1]  = sinTheta;  Rz[5]  =  cosTheta;  Rz[9]  = 0.0f;  Rz[13] = 0.0f;
+	Rz[2]  = 0.0f;      Rz[6]  =  0.0f;      Rz[10] = 1.0f;  Rz[14] = 0.0f;
+	Rz[3]  = 0.0f;      Rz[7]  =  0.0f;      Rz[11] = 0.0f;  Rz[15] = 1.0f;
+}
+
+// Create a rotation matrix around arbitrary axis (rx, ry, rz)
+void rotate(float theta, float rx, float ry, float rz, float R[16]) {
+	// Calculate sin(theta) and cos(theta)
+	float sinTheta = sin(theta);
+	float cosTheta = cos(theta);
+
+	float l = sqrt(rx*rx + ry*ry + rz*rz);
+	rx /= l;
+	ry /= l;
+	rz /= l;
+
+	R[0]  = cosTheta + (1-cosTheta)*rx*rx;     R[4]  = (1-cosTheta)*rx*ry - rz*sinTheta;  R[8]  = (1 - cosTheta)*rx*ry + ry*sinTheta;  R[12] = 0.0f;
+	R[1]  = (1-cosTheta)*rx*ry + rz*sinTheta;  R[5]  = cosTheta + (1-cosTheta)*ry*ry;     R[9]  = (1 - cosTheta)*ry*rz - rx*sinTheta;  R[13] = 0.0f;
+	R[2]  = (1-cosTheta)*rx*rz - ry*sinTheta;  R[6]  = (1-cosTheta)*ry*rz + rx*sinTheta;  R[10] = cosTheta + (1-cosTheta)*rz*rz;       R[14] = 0.0f;
+	R[3]  = 0.0f;                              R[7]  = 0.0f;                              R[11] = 0.0f;                                R[15] = 1.0f;
 }
 
 
