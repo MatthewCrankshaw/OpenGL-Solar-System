@@ -115,8 +115,22 @@ float planet_speed[9] =
     0.3f,
     0.25f,
     0.2f,
-    0.0f,
+    0.15f,
 };
+
+const string PLANET_TEXTURE[9] =
+{
+    "./images/planets/sunmap.jpg",
+    "./images/planets/mercurymap.jpg",
+    "./images/planets/venusmap.jpg",
+    "./images/planets/earthmap.jpg",
+    "./images/planets/marsmap.jpg",
+    "./images/planets/jupitermap.jpg",
+    "./images/planets/saturnmap.jpg",
+    "./images/planets/uranusmap.jpg",
+    "./images/planets/neptunemap.jpg"
+};
+
 int main() {
 	// Set Error Callback
 	glfwSetErrorCallback(onError);
@@ -209,8 +223,16 @@ int main() {
     //-------------------------------------------------
     // load sphere textures
     //-------------------------------------------------
-    unsigned char *sphere_image = loadImage("./images/posz.jpg", x, y, n, false);
-    if(sphere_image == NULL){
+
+
+    unsigned char *planet_map[9];
+
+    for(int i = 0; i < 1; i++){
+        planet_map[i] = loadImage("./images/planets/earthmap.jpg", x, y, n, false);
+    }
+
+
+    if(planet_map[0] == NULL){
         return 0;
     }
 
@@ -220,18 +242,18 @@ int main() {
 
     glBindTexture(GL_TEXTURE_2D, sphere_textures);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, sphere_image);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, planet_map[0]);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // No mip-mapping
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // No mip-mapping
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Configure Texture Coordinate Wrapping
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
     glBindTexture(GL_TEXTURE_2D,0);
-    delete[] sphere_image;
-    sphere_image = NULL;
+    delete[] planet_map[0];
+    planet_map[0] = NULL;
 
 	//------------------------------------------
 	// Create sphere data and vao
@@ -267,12 +289,13 @@ int main() {
         //set position location
         //TODO change the program
         GLuint sphere_posLoc = glGetAttribLocation(sphere_program, "vert_Position");
-
+        GLuint sphere_texLoc = glGetAttribLocation(sphere_program, "vert_UV");
         // Set Vertex Attribute Pointers
-        glVertexAttribPointer(sphere_posLoc, 4, GL_FLOAT, GL_FALSE, 4 * 3 * sizeof(GLfloat), NULL);
-
+        glVertexAttribPointer(sphere_posLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), NULL);
+        glVertexAttribPointer(sphere_texLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (GLvoid*)(8*sizeof(float)));
         // Enable Vertex Attribute Arrays
         glEnableVertexAttribArray(sphere_posLoc);
+        glEnableVertexAttribArray(sphere_texLoc);
 
         // Unbind VAO, VBO & EBO
         glBindVertexArray(0);
@@ -434,8 +457,8 @@ int main() {
 
             scale(planet_sizes[i], planet_sizes[i], planet_sizes[i], sc);
             //scale(1.0,1.0,1.0,sc);
-            translate((0.8f * (0.5 * i)), 0.0f, 0.0f, translation);
-            rotateZ(glfwGetTime() * planet_speed[i], rotation);
+            translate((0.8f * (0.2 * i)), 0.0f, 0.0f, translation);
+            rotateY(glfwGetTime() * planet_speed[i], rotation);
 
             multiply44(rotation, translation, rotation);
             multiply44(rotation, sc, model);

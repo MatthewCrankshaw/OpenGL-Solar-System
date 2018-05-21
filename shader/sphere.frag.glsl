@@ -16,5 +16,5 @@ void main () {
 	//----------------------------------------------
 	// Fragment Colour
 	//----------------------------------------------
-	pixel_Colour = frag_colour;
+	pixel_Colour = texture(u_texture_Map, frag_UV.xy);
 }
