@@ -91,17 +91,31 @@ void scale(float sx, float sy, float sz, float S[16]);
 
 //order goes distrance from sun starting at sun
 //Sun, mercury,venus, earth, mars, jupiter, saturn, uranus, neptune
+//I have tripled the size of the planets (not the sun) to make it more visible
 float planet_sizes[9] =
 {
     1.0f,
-    0.00349f*3,
-    0.00866f*3,
-    0.00912f*3,
-    0.00485f*3,
-    0.10f*3,
-    0.08f*3,
-    0.0363f*3,
-    0.03525f*3
+    0.00349f*5,
+    0.00866f*5,
+    0.00912f*5,
+    0.00485f*5,
+    0.10f*5,
+    0.08f*5,
+    0.0363f*5,
+    0.03525f*5
+};
+
+float planet_speed[9] =
+{
+    0.0f,
+    0.5f,
+    0.45f,
+    0.4f,
+    0.35f,
+    0.3f,
+    0.25f,
+    0.2f,
+    0.0f,
 };
 int main() {
 	// Set Error Callback
@@ -190,11 +204,37 @@ int main() {
 								"images/negS.png"};
 
 	// Load Cubemap
-	GLuint texture = loadTextureCubeMap(filenames, x, y, n);
+	GLuint cubemap_texture = loadTextureCubeMap(filenames, x, y, n);
 
+    //-------------------------------------------------
+    // load sphere textures
+    //-------------------------------------------------
+    unsigned char *sphere_image = loadImage("./images/posz.jpg", x, y, n, false);
+    if(sphere_image == NULL){
+        return 0;
+    }
+
+    GLuint sphere_textures;
+
+    glGenTextures(1, &sphere_textures);
+
+    glBindTexture(GL_TEXTURE_2D, sphere_textures);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, sphere_image);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // No mip-mapping
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	// Configure Texture Coordinate Wrapping
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_2D,0);
+    delete[] sphere_image;
+    sphere_image = NULL;
 
 	//------------------------------------------
-	// Sphere
+	// Create sphere data and vao
 	//------------------------------------------
 	const int num_spheres = 9;
     glUseProgram(sphere_program);
@@ -365,7 +405,7 @@ int main() {
 		glActiveTexture(GL_TEXTURE0);
 
 		// Bind Texture Map
-		glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_texture);
 
 		// Draw Elements (Triangles)
 		glDrawElements(GL_TRIANGLES, skybox_indexes.size() * 3, GL_UNSIGNED_INT, NULL);
@@ -388,17 +428,17 @@ int main() {
         for(int i = 0; i < num_spheres; i++){
             float sc[16];
             float translation[16];
-            float temp[16];
             float rotation[16];
+            float temp[16];
             float model[16];
 
             scale(planet_sizes[i], planet_sizes[i], planet_sizes[i], sc);
-            //scale(1.0, 1.0, 1.0, sc);
+            //scale(1.0,1.0,1.0,sc);
             translate((0.8f * (0.5 * i)), 0.0f, 0.0f, translation);
-            rotateY(/*glfwGetTime()*0.2*/0, rotation);
+            rotateZ(glfwGetTime() * planet_speed[i], rotation);
 
-            multiply44(translation, rotation, temp);
-            multiply44(temp, sc, model);
+            multiply44(rotation, translation, rotation);
+            multiply44(rotation, sc, model);
 
             glUseProgram(sphere_program);
 
@@ -409,9 +449,12 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model);
 
             glEnable(GL_DEPTH_TEST);
-            glUseProgram(sphere_program);
             glBindVertexArray(sphere_vao[i]);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, sphere_textures);
             glDrawElements(GL_TRIANGLES, sphere_indices.size() * 3, GL_UNSIGNED_INT, NULL);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glActiveTexture(GL_TEXTURE0);
             glBindVertexArray(0);
         }
 
