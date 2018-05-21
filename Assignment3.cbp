@@ -65,6 +65,7 @@
 		<Unit filename="src/image.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/shader.cpp" />
+		<Unit filename="src/transforms.cpp" />
 		<Unit filename="src/utils.cpp" />
 		<Extensions>
 			<code_completion />
