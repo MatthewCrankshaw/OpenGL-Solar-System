@@ -92,7 +92,7 @@ void scale(float sx, float sy, float sz, float S[16]);
 //order goes distrance from sun starting at sun
 //Sun, mercury,venus, earth, mars, jupiter, saturn, uranus, neptune
 //I have tripled the size of the planets (not the sun) to make it more visible
-float planet_sizes[9] =
+const float PLANET_SIZES[9] =
 {
     1.0f,
     0.00349f*5,
@@ -105,17 +105,17 @@ float planet_sizes[9] =
     0.03525f*5
 };
 
-float planet_speed[9] =
+const float PLANET_SPEED[9] =
 {
     0.0f,
-    0.5f,
-    0.45f,
-    0.4f,
-    0.35f,
-    0.3f,
-    0.25f,
-    0.2f,
-    0.15f,
+    0.1f,
+    0.09f,
+    0.08f,
+    0.07f,
+    0.06f,
+    0.05f,
+    0.04f,
+    0.03f,
 };
 
 const string PLANET_TEXTURE[9] =
@@ -170,6 +170,9 @@ int main() {
         }
     #endif // defined
 
+    //CONST VARS
+    const int NUM_SPHERES = 9;
+
 	// Enable multi-sampling - Antialiasing
 	glEnable(GL_MULTISAMPLE);
 
@@ -210,12 +213,19 @@ int main() {
 	// URL: http://www.humus.name
 	// License: Creative Commons Attribution 3.0 Unported License.
 	// Filenames
-	const char *filenames[6] = {"images/posR.png",
-								"images/negR.png",
-								"images/negT.png",
-								"images/posT.png",
-								"images/posS.png",
-								"images/negS.png"};
+//	const char *filenames[6] = {"images/posR.png",
+//								"images/negR.png",
+//								"images/negT.png",
+//								"images/posT.png",
+//								"images/posS.png",
+//								"images/negS.png"};
+
+    const char *filenames[6] = {"images/black.jpeg",
+                                "images/black.jpeg",
+                                "images/black.jpeg",
+                                "images/black.jpeg",
+                                "images/black.jpeg",
+                                "images/black.jpeg"};
 
 	// Load Cubemap
 	GLuint cubemap_texture = loadTextureCubeMap(filenames, x, y, n);
@@ -228,7 +238,7 @@ int main() {
     unsigned char *planet_map[9];
     GLuint sphere_textures[9];
 
-    for(int i = 0; i < 9; i++){
+    for(int i = 0; i < NUM_SPHERES; i++){
 
         //load texture into var
         planet_map[i] = loadImage(PLANET_TEXTURE[i].c_str(), x, y, n, false);
@@ -258,7 +268,6 @@ int main() {
 	//------------------------------------------
 	// Create sphere data and vao
 	//------------------------------------------
-	const int num_spheres = 9;
     glUseProgram(sphere_program);
 	//buffer data
     vector<glm::vec4> sphere_buf;
@@ -267,11 +276,11 @@ int main() {
 	createSphereData(sphere_buf, sphere_indices, 0.1f, 50, 50);
 
     //set up the vao, vbo and ebo for spheres
-	GLuint sphere_vao[num_spheres];
-	GLuint sphere_vbo[num_spheres];
-	GLuint sphere_ebo[num_spheres];
+	GLuint sphere_vao[NUM_SPHERES];
+	GLuint sphere_vbo[NUM_SPHERES];
+	GLuint sphere_ebo[NUM_SPHERES];
 
-	for(int i = 0; i < num_spheres; i++){
+	for(int i = 0; i < NUM_SPHERES; i++){
         glGenVertexArrays(1, &sphere_vao[i]);
         glGenBuffers(1, &sphere_vbo[i]);
         glGenBuffers(1, &sphere_ebo[i]);
@@ -448,20 +457,24 @@ int main() {
         //draw spheres
         //---------------------------------------
 
-        for(int i = 0; i < num_spheres; i++){
+        for(int i = 0; i < NUM_SPHERES; i++){
             float sc[16];
             float translation[16];
-            float rotation[16];
-            float temp[16];
+            float rot_around[16], rot_inplace[16];
+            float temp[16],temp2[16];
             float model[16];
 
-            scale(planet_sizes[i], planet_sizes[i], planet_sizes[i], sc);
-            //scale(1.0,1.0,1.0,sc);
+            scale(PLANET_SIZES[i], PLANET_SIZES[i], PLANET_SIZES[i], sc);
             translate((0.8f * (0.2 * i)), 0.0f, 0.0f, translation);
-            rotateY(glfwGetTime() * planet_speed[i], rotation);
+            rotateY(glfwGetTime() * PLANET_SPEED[i], rot_around);
+            rotateY(glfwGetTime(), rot_inplace);
 
-            multiply44(rotation, translation, rotation);
-            multiply44(rotation, sc, model);
+            //rotate and then translate
+            multiply44(translation, rot_inplace, temp);
+            //rotate around sun
+            multiply44(rot_around, temp, temp2);
+            //scale size
+            multiply44(temp2, sc, model);
 
             glUseProgram(sphere_program);
 
@@ -495,7 +508,7 @@ int main() {
 	glDeleteBuffers(1, &skybox_vbo);
 	glDeleteBuffers(1, &skybox_ebo);
 
-	for(int i = 0; i < num_spheres; i++){
+	for(int i = 0; i < NUM_SPHERES; i++){
         glDeleteVertexArrays(1, &sphere_vao[i]);
         glDeleteBuffers(1, &sphere_vbo[i]);
         glDeleteBuffers(1, &sphere_ebo[i]);
