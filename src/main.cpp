@@ -38,6 +38,7 @@
 #include "geometry.h"
 #include "image.h"
 #include "camera.h"
+#include "transforms.h"
 
 using namespace std;
 
@@ -80,14 +81,6 @@ void onCursorPosition(GLFWwindow *window, double x, double y) {
 	// Update Camera
 	camera->onCursorPosition(window, x, y);
 }
-
-void translate(float tx, float ty, float tz, float T[16]);
-void multiply44(float a[16], float b[16], float c[16]);
-void rotateX(float theta, float Rx[16]);
-void rotateY(float theta, float Ry[16]);
-void rotateZ(float theta, float Rz[16]);
-void rotate(float theta, float rx, float ry, float rz, float R[16]);
-void scale(float sx, float sy, float sz, float S[16]);
 
 //order goes distrance from sun starting at sun
 //Sun, mercury,venus, earth, mars, jupiter, saturn, uranus, neptune
@@ -145,7 +138,7 @@ int main() {
 	glfwWindowHint(GLFW_SAMPLES, 16);
 
 	// Create Window
-	GLFWwindow *window = createWindow(600, 600, "Example 13 - Skybox", 3, 2);
+	GLFWwindow *window = createWindow(600, 600, "Assignment 3", 3, 2);
 
 	// Check Window
 	if (window == NULL) {
@@ -213,12 +206,7 @@ int main() {
 	// URL: http://www.humus.name
 	// License: Creative Commons Attribution 3.0 Unported License.
 	// Filenames
-//	const char *filenames[6] = {"images/posR.png",
-//								"images/negR.png",
-//								"images/negT.png",
-//								"images/posT.png",
-//								"images/posS.png",
-//								"images/negS.png"};
+
 
     const char *filenames[6] = {"images/black.jpeg",
                                 "images/black.jpeg",
@@ -298,12 +286,15 @@ int main() {
         //set position location
         //TODO change the program
         GLuint sphere_posLoc = glGetAttribLocation(sphere_program, "vert_Position");
+        GLuint sphere_normLoc = glGetAttribLocation(sphere_program, "vert_Norm");
         GLuint sphere_texLoc = glGetAttribLocation(sphere_program, "vert_UV");
         // Set Vertex Attribute Pointers
         glVertexAttribPointer(sphere_posLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), NULL);
+        glVertexAttribPointer(sphere_normLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (GLvoid*)(4*sizeof(float)));
         glVertexAttribPointer(sphere_texLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (GLvoid*)(8*sizeof(float)));
         // Enable Vertex Attribute Arrays
         glEnableVertexAttribArray(sphere_posLoc);
+        glEnableVertexAttribArray(sphere_normLoc);
         glEnableVertexAttribArray(sphere_texLoc);
 
         // Unbind VAO, VBO & EBO
@@ -458,15 +449,20 @@ int main() {
         //---------------------------------------
 
         for(int i = 0; i < NUM_SPHERES; i++){
+            //set up all of the transform matrices
             float sc[16];
             float translation[16];
             float rot_around[16], rot_inplace[16];
             float temp[16],temp2[16];
             float model[16];
 
+            //get scale matrix
             scale(PLANET_SIZES[i], PLANET_SIZES[i], PLANET_SIZES[i], sc);
+            //get translate matrix
             translate((0.8f * (0.2 * i)), 0.0f, 0.0f, translation);
+            //get rotation around sun matrix
             rotateY(glfwGetTime() * PLANET_SPEED[i], rot_around);
+            //get rotation around the y axis
             rotateY(glfwGetTime(), rot_inplace);
 
             //rotate and then translate
@@ -484,13 +480,19 @@ int main() {
 
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model);
 
+            //enable depth testing for spheres
             glEnable(GL_DEPTH_TEST);
+            //bind vertex array
             glBindVertexArray(sphere_vao[i]);
+            //set active texture and bind correct texture
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, sphere_textures[i]);
+            //draw the sphere with texture
             glDrawElements(GL_TRIANGLES, sphere_indices.size() * 3, GL_UNSIGNED_INT, NULL);
+            //unbind the texture
             glBindTexture(GL_TEXTURE_2D, 0);
             glActiveTexture(GL_TEXTURE0);
+            //unbind vertex array object
             glBindVertexArray(0);
         }
 
@@ -526,97 +528,6 @@ int main() {
 	glfwTerminate();
 
 	return 0;
-}
-
-void translate(float tx, float ty, float tz, float T[16]) {
-	T[0]  = 1.0f;  T[4]  = 0.0f;  T[8]  = 0.0f;  T[12] = tx;
-	T[1]  = 0.0f;  T[5]  = 1.0f;  T[9]  = 0.0f;  T[13] = ty;
-	T[2]  = 0.0f;  T[6]  = 0.0f;  T[10] = 1.0f;  T[14] = tz;
-	T[3]  = 0.0f;  T[7]  = 0.0f;  T[11] = 0.0f;  T[15] = 1.0f;
-}
-
-void multiply44(float a[16], float b[16], float c[16]) {
-	// Multiply each row of A with each column of B to give C
-	c[0]  = a[0]*b[0]  + a[4]*b[1]  + a[8]*b[2]   + a[12]*b[3];
-	c[4]  = a[0]*b[4]  + a[4]*b[5]  + a[8]*b[6]   + a[12]*b[7];
-	c[8]  = a[0]*b[8]  + a[4]*b[9]  + a[8]*b[10]  + a[12]*b[11];
-	c[12] = a[0]*b[12] + a[4]*b[13] + a[8]*b[14]  + a[12]*b[15];
-
-	c[1]  = a[1]*b[0]  + a[5]*b[1]  + a[9]*b[2]   + a[13]*b[3];
-	c[5]  = a[1]*b[4]  + a[5]*b[5]  + a[9]*b[6]   + a[13]*b[7];
-	c[9]  = a[1]*b[8]  + a[5]*b[9]  + a[9]*b[10]  + a[13]*b[11];
-	c[13] = a[1]*b[12] + a[5]*b[13] + a[9]*b[14]  + a[13]*b[15];
-
-	c[2]  = a[2]*b[0]  + a[6]*b[1]  + a[10]*b[2]  + a[14]*b[3];
-	c[6]  = a[2]*b[4]  + a[6]*b[5]  + a[10]*b[6]  + a[14]*b[7];
-	c[10] = a[2]*b[8]  + a[6]*b[9]  + a[10]*b[10] + a[14]*b[11];
-	c[14] = a[2]*b[12] + a[6]*b[13] + a[10]*b[14] + a[14]*b[15];
-
-	c[3]  = a[3]*b[0]  + a[7]*b[1]  + a[11]*b[2]  + a[15]*b[3];
-	c[7]  = a[3]*b[4]  + a[7]*b[5]  + a[11]*b[6]  + a[15]*b[7];
-	c[11] = a[3]*b[8]  + a[7]*b[9]  + a[11]*b[10] + a[15]*b[11];
-	c[15] = a[3]*b[12] + a[7]*b[13] + a[11]*b[14] + a[15]*b[15];
-}
-
-// Create a rotation matrix around the X-axis
-void rotateX(float theta, float Rx[16]) {
-	// Calculate sin(theta) and cos(theta)
-	float sinTheta = sin(theta);
-	float cosTheta = cos(theta);
-
-	Rx[0]  = 1.0f;  Rx[4]  = 0.0f;      Rx[8]  =      0.0f;  Rx[12] = 0.0f;
-	Rx[1]  = 0.0f;  Rx[5]  = cosTheta;  Rx[9]  = -sinTheta;  Rx[13] = 0.0f;
-	Rx[2]  = 0.0f;  Rx[6]  = sinTheta;  Rx[10] =  cosTheta;  Rx[14] = 0.0f;
-	Rx[3]  = 0.0f;  Rx[7]  = 0.0f;      Rx[11] =      0.0f;  Rx[15] = 1.0f;
-}
-
-// Create a rotation matrix around the Y-axis
-void rotateY(float theta, float Ry[16]) {
-	// Calculate sin(theta) and cos(theta)
-	float sinTheta = sin(theta);
-	float cosTheta = cos(theta);
-
-	Ry[0]  =  cosTheta;  Ry[4]  = 0.0f;  Ry[8]  =  sinTheta;  Ry[12] = 0.0f;
-	Ry[1]  =  0.0f;      Ry[5]  = 1.0f;  Ry[9]  =      0.0f;  Ry[13] = 0.0f;
-	Ry[2]  = -sinTheta;  Ry[6]  = 0.0f;  Ry[10] =  cosTheta;  Ry[14] = 0.0f;
-	Ry[3]  =  0.0f;      Ry[7]  = 0.0f;  Ry[11] =      0.0f;  Ry[15] = 1.0f;
-}
-
-// Create a rotation matrix around the Z-axis
-void rotateZ(float theta, float Rz[16]) {
-	// Calculate sin(theta) and cos(theta)
-	float sinTheta = sin(theta);
-	float cosTheta = cos(theta);
-
-	Rz[0]  = cosTheta;  Rz[4]  = -sinTheta;  Rz[8]  = 0.0f;  Rz[12] = 0.0f;
-	Rz[1]  = sinTheta;  Rz[5]  =  cosTheta;  Rz[9]  = 0.0f;  Rz[13] = 0.0f;
-	Rz[2]  = 0.0f;      Rz[6]  =  0.0f;      Rz[10] = 1.0f;  Rz[14] = 0.0f;
-	Rz[3]  = 0.0f;      Rz[7]  =  0.0f;      Rz[11] = 0.0f;  Rz[15] = 1.0f;
-}
-
-// Create a rotation matrix around arbitrary axis (rx, ry, rz)
-void rotate(float theta, float rx, float ry, float rz, float R[16]) {
-	// Calculate sin(theta) and cos(theta)
-	float sinTheta = sin(theta);
-	float cosTheta = cos(theta);
-
-	float l = sqrt(rx*rx + ry*ry + rz*rz);
-	rx /= l;
-	ry /= l;
-	rz /= l;
-
-	R[0]  = cosTheta + (1-cosTheta)*rx*rx;     R[4]  = (1-cosTheta)*rx*ry - rz*sinTheta;  R[8]  = (1 - cosTheta)*rx*ry + ry*sinTheta;  R[12] = 0.0f;
-	R[1]  = (1-cosTheta)*rx*ry + rz*sinTheta;  R[5]  = cosTheta + (1-cosTheta)*ry*ry;     R[9]  = (1 - cosTheta)*ry*rz - rx*sinTheta;  R[13] = 0.0f;
-	R[2]  = (1-cosTheta)*rx*rz - ry*sinTheta;  R[6]  = (1-cosTheta)*ry*rz + rx*sinTheta;  R[10] = cosTheta + (1-cosTheta)*rz*rz;       R[14] = 0.0f;
-	R[3]  = 0.0f;                              R[7]  = 0.0f;                              R[11] = 0.0f;                                R[15] = 1.0f;
-}
-
-void scale(float sx, float sy, float sz, float S[16]) {
-	// Scaling Matrix
-	S[0]  = sx;    S[4]  =  0.0f;  S[8]  = 0.0f;  S[12] = 0.0f;
-	S[1]  = 0.0f;  S[5]  =  sy;    S[9]  = 0.0f;  S[13] = 0.0f;
-	S[2]  = 0.0f;  S[6]  =  0.0f;  S[10] = sz;    S[14] = 0.0f;
-	S[3]  = 0.0f;  S[7]  =  0.0f;  S[11] = 0.0f;  S[15] = 1.0f;
 }
 
 
