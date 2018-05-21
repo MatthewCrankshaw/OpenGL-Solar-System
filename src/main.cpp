@@ -226,34 +226,34 @@ int main() {
 
 
     unsigned char *planet_map[9];
+    GLuint sphere_textures[9];
 
-    for(int i = 0; i < 1; i++){
-        planet_map[i] = loadImage("./images/planets/earthmap.jpg", x, y, n, false);
+    for(int i = 0; i < 9; i++){
+
+        //load texture into var
+        planet_map[i] = loadImage(PLANET_TEXTURE[i].c_str(), x, y, n, false);
+        //check if
+        if(planet_map[i] == NULL){
+            cout << "Image: " << PLANET_TEXTURE[i] << " was not found" << endl;
+        }
+
+        glGenTextures(1, &sphere_textures[i]);
+
+        glBindTexture(GL_TEXTURE_2D, sphere_textures[i]);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, planet_map[i]);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // No mip-mapping
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Configure Texture Coordinate Wrapping
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+
+        glBindTexture(GL_TEXTURE_2D,0);
+        delete[] planet_map[i];
+        planet_map[i] = NULL;
     }
-
-
-    if(planet_map[0] == NULL){
-        return 0;
-    }
-
-    GLuint sphere_textures;
-
-    glGenTextures(1, &sphere_textures);
-
-    glBindTexture(GL_TEXTURE_2D, sphere_textures);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, planet_map[0]);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // No mip-mapping
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// Configure Texture Coordinate Wrapping
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D,0);
-    delete[] planet_map[0];
-    planet_map[0] = NULL;
 
 	//------------------------------------------
 	// Create sphere data and vao
@@ -474,7 +474,7 @@ int main() {
             glEnable(GL_DEPTH_TEST);
             glBindVertexArray(sphere_vao[i]);
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, sphere_textures);
+            glBindTexture(GL_TEXTURE_2D, sphere_textures[i]);
             glDrawElements(GL_TRIANGLES, sphere_indices.size() * 3, GL_UNSIGNED_INT, NULL);
             glBindTexture(GL_TEXTURE_2D, 0);
             glActiveTexture(GL_TEXTURE0);
