@@ -12,7 +12,7 @@ uniform mat4 u_Model;
 uniform mat4 u_Projection;
 
 //light source
-uniform vec4 u_Light_Direction = vec4(0.0f, 0.0f, -1.0f, 0.0f);
+vec4 u_Light_Direction; //vec4(1.0f, 0.0f, -1.0f, 0.0f);
 
 out vec4 frag_UV;
 out vec4 frag_Norm;
@@ -22,6 +22,10 @@ void main() {
 	frag_UV = vert_UV;
 
 	frag_Norm = u_View * u_Model * vert_Norm;
+
+	vec4 direction = -vert_Position;
+
+	u_Light_Direction = normalize(direction);
 
 	frag_Light_Direction = u_View * u_Light_Direction;
 

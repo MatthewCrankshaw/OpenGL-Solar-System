@@ -196,7 +196,7 @@ int main() {
 
 	// Load GLSL Program
 	GLuint skybox_program = loadProgram("./shader/skybox.vert.glsl", NULL, NULL, NULL, "./shader/skybox.frag.glsl");
-    GLuint sphere_program = loadProgram("./shader/sphere.vert.glsl", NULL, NULL, NULL, "./shader/sphere.frag.glsl");
+    GLuint sphere_program = loadProgram("./shader/planets.vert.glsl", NULL, NULL, NULL, "./shader/planets.frag.glsl");
 
 	// Load Texture Map
 	int x, y, n;
