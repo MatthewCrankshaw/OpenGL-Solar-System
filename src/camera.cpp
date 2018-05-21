@@ -1,4 +1,4 @@
-// Project Headers 
+// Project Headers
 #include "camera.h"
 
 // --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ FreeLookCamera::FreeLookCamera(GLFWwindow *window) : Camera(window) {
 	mPosition = glm::vec3(0, 0, 0);
 
 	// Camera Speed
-	mSpeed = 10.0;
+	mSpeed = 0.5;
 
 	// Disable Tracking
 	mTrack = false;
@@ -50,7 +50,7 @@ void FreeLookCamera::onMouseButton(GLFWwindow *window, int button, int action, i
 		} else if(action == GLFW_RELEASE) {
 			// Stop Tracking
 			mTrack = false;
-		}		
+		}
 	}
 }
 
@@ -181,7 +181,7 @@ void GimbalFreeLookCamera::pitch(float angle) {
 	}
 
 	// Generate Orientation
-	mOrientation = glm::quat(cos(mViewAngleY/2.0f), glm::vec3(0.0f, glm::sin(mViewAngleY/2.0f), 0.0f)) * 
+	mOrientation = glm::quat(cos(mViewAngleY/2.0f), glm::vec3(0.0f, glm::sin(mViewAngleY/2.0f), 0.0f)) *
 				   glm::quat(cos(mViewAngleX/2.0f), glm::vec3(glm::sin(mViewAngleX/2.0f), 0.0f, 0.0f));
 }
 void GimbalFreeLookCamera::yaw(float angle) {
@@ -189,7 +189,7 @@ void GimbalFreeLookCamera::yaw(float angle) {
 	mViewAngleY += angle;
 
 	// Generate Orientation
-	mOrientation = glm::quat(cos(mViewAngleY/2.0f), glm::vec3(0.0f, glm::sin(mViewAngleY/2.0f), 0.0f)) * 
+	mOrientation = glm::quat(cos(mViewAngleY/2.0f), glm::vec3(0.0f, glm::sin(mViewAngleY/2.0f), 0.0f)) *
 				   glm::quat(cos(mViewAngleX/2.0f), glm::vec3(glm::sin(mViewAngleX/2.0f), 0.0f, 0.0f));
 }
 void GimbalFreeLookCamera::roll(float angle) {

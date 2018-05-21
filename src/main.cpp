@@ -94,14 +94,14 @@ void scale(float sx, float sy, float sz, float S[16]);
 float planet_sizes[9] =
 {
     1.0f,
-    0.00349f,
-    0.00866f,
-    0.00912f,
-    0.00485f,
-    0.10f,
-    0.08f,
-    0.0363f,
-    0.03525f
+    0.00349f*3,
+    0.00866f*3,
+    0.00912f*3,
+    0.00485f*3,
+    0.10f*3,
+    0.08f*3,
+    0.0363f*3,
+    0.03525f*3
 };
 int main() {
 	// Set Error Callback
@@ -196,7 +196,7 @@ int main() {
 	//------------------------------------------
 	// Sphere
 	//------------------------------------------
-	const int num_spheres = 8;
+	const int num_spheres = 9;
     glUseProgram(sphere_program);
 	//buffer data
     vector<glm::vec4> sphere_buf;
@@ -312,7 +312,7 @@ int main() {
 	glm::mat4 projectionMatrix;
 
 	// Calculate Perspective Projection
-	projectionMatrix = glm::perspective(glm::radians(67.0f), 1.0f, 0.1f, 50.0f);
+	projectionMatrix = glm::perspective(glm::radians(67.0f), 1.0f, 0.001f, 50.0f);
 
 	// Copy Projection Matrix to Shader
 	glUseProgram(skybox_program);
@@ -393,12 +393,12 @@ int main() {
             float model[16];
 
             scale(planet_sizes[i], planet_sizes[i], planet_sizes[i], sc);
-            translate(1.5f * i, 0.0f, 0.0f, translation);
-            multiply44(sc, translation, temp);
+            //scale(1.0, 1.0, 1.0, sc);
+            translate((0.8f * (0.5 * i)), 0.0f, 0.0f, translation);
+            rotateY(/*glfwGetTime()*0.2*/0, rotation);
 
-            rotateY(glfwGetTime()*0.2, rotation);
-
-            multiply44(rotation, temp, model);
+            multiply44(translation, rotation, temp);
+            multiply44(temp, sc, model);
 
             glUseProgram(sphere_program);
 
