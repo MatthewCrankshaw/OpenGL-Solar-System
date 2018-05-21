@@ -197,6 +197,7 @@ int main() {
 	// Load GLSL Program
 	GLuint skybox_program = loadProgram("./shader/skybox.vert.glsl", NULL, NULL, NULL, "./shader/skybox.frag.glsl");
     GLuint sphere_program = loadProgram("./shader/planets.vert.glsl", NULL, NULL, NULL, "./shader/planets.frag.glsl");
+    GLuint sun_program = loadProgram("./shader/sun.vert.glsl", NULL, NULL, NULL, "./shader/sun.frag.glsl");
 
 	// Load Texture Map
 	int x, y, n;
@@ -283,24 +284,47 @@ int main() {
         // Load Element Data
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere_indices.size() * sizeof(glm::ivec3), sphere_indices.data(), GL_STATIC_DRAW);
 
+        GLuint sphere_posLoc;
+        GLuint sphere_normLoc;
+        GLuint sphere_texLoc;
         //set position location
-        //TODO change the program
-        GLuint sphere_posLoc = glGetAttribLocation(sphere_program, "vert_Position");
-        GLuint sphere_normLoc = glGetAttribLocation(sphere_program, "vert_Norm");
-        GLuint sphere_texLoc = glGetAttribLocation(sphere_program, "vert_UV");
-        // Set Vertex Attribute Pointers
-        glVertexAttribPointer(sphere_posLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), NULL);
-        glVertexAttribPointer(sphere_normLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (GLvoid*)(4*sizeof(float)));
-        glVertexAttribPointer(sphere_texLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (GLvoid*)(8*sizeof(float)));
-        // Enable Vertex Attribute Arrays
-        glEnableVertexAttribArray(sphere_posLoc);
-        glEnableVertexAttribArray(sphere_normLoc);
-        glEnableVertexAttribArray(sphere_texLoc);
+        if(i == 0){//the sun
+            sphere_posLoc = glGetAttribLocation(sun_program, "vert_Position");
+            sphere_texLoc = glGetAttribLocation(sun_program, "vert_UV");
+            // Set Vertex Attribute Pointers
+            glVertexAttribPointer(sphere_posLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), NULL);
+            glVertexAttribPointer(sphere_texLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (GLvoid*)(8*sizeof(float)));
+            // Enable Vertex Attribute Arrays
+            glEnableVertexAttribArray(sphere_posLoc);
+            glEnableVertexAttribArray(sphere_texLoc);
+        }else{
+            sphere_posLoc = glGetAttribLocation(sphere_program, "vert_Position");
+            sphere_normLoc = glGetAttribLocation(sphere_program, "vert_Norm");
+            sphere_texLoc = glGetAttribLocation(sphere_program, "vert_UV");
+            // Set Vertex Attribute Pointers
+            glVertexAttribPointer(sphere_posLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), NULL);
+            glVertexAttribPointer(sphere_normLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (GLvoid*)(4*sizeof(float)));
+            glVertexAttribPointer(sphere_texLoc, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (GLvoid*)(8*sizeof(float)));
+            // Enable Vertex Attribute Arrays
+            glEnableVertexAttribArray(sphere_posLoc);
+            glEnableVertexAttribArray(sphere_normLoc);
+            glEnableVertexAttribArray(sphere_texLoc);
+        }
 
         // Unbind VAO, VBO & EBO
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        // ----------------------------------------
+        // Set Texture Unit
+        if(i == 0){
+            glUseProgram(sun_program);
+            glUniform1i(glGetUniformLocation(sun_program, "u_texture_Map"), 0);
+        }else{
+            glUseProgram(sphere_program);
+            glUniform1i(glGetUniformLocation(sphere_program, "u_texture_Map"), 0);
+        }
 	}
 
 
@@ -383,6 +407,9 @@ int main() {
 
 	glUseProgram(sphere_program);
 	glUniformMatrix4fv(glGetUniformLocation(sphere_program, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+	glUseProgram(sun_program);
+	glUniformMatrix4fv(glGetUniformLocation(sun_program, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
 	// ----------------------------------------
 	// Main Render loop
@@ -472,11 +499,19 @@ int main() {
             //scale size
             multiply44(temp2, sc, model);
 
-            glUseProgram(sphere_program);
+            GLint modelLoc;
 
-            glUniformMatrix4fv(glGetUniformLocation(sphere_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
+            if(i == 0){
+                glUseProgram(sun_program);
+                glUniformMatrix4fv(glGetUniformLocation(sun_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
+                modelLoc = glGetUniformLocation(sun_program, "u_Model");
+            }else{
+                glUseProgram(sphere_program);
+                glUniformMatrix4fv(glGetUniformLocation(sphere_program, "u_View"),  1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
+                modelLoc = glGetUniformLocation(sphere_program, "u_Model");
+            }
 
-            GLint modelLoc = glGetUniformLocation(sphere_program, "u_Model");
+
 
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model);
 
@@ -519,6 +554,7 @@ int main() {
 	// Delete Program
 	glDeleteProgram(skybox_program);
 	glDeleteProgram(sphere_program);
+	glDeleteProgram(sun_program);
 
 	// Stop receiving events for the window and free resources; this must be
 	// called from the main thread and should not be invoked from a callback
