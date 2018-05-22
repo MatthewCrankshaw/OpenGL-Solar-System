@@ -13,14 +13,14 @@ uniform sampler2D u_texture_Map;
 // Output from Fragment Shader
 out vec4 pixel_Colour;
 
-uniform vec4 Ia = vec4(0.1f, 0.1f, 0.1f, 1.0f);
+uniform vec4 Ia = vec4(0.02f, 0.02f, 0.02f, 1.0f);
 uniform vec4 Id = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 uniform vec4 Is = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 vec4 Ka;
 vec4 Kd;
 vec4 Ks;
-uniform float a = 11.264;
+uniform float a = 21.264;
 
 
 void main () {

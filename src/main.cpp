@@ -111,6 +111,19 @@ const float PLANET_SPEED[9] =
     0.03f,
 };
 
+const float PLANET_START_LOC[9] =
+{
+    0.0f,
+    10.0f,
+    54.0f,
+    32.0f,
+    90.0f,
+    140.0f,
+    20.0f,
+    66.0f,
+    88.0f
+};
+
 const string PLANET_TEXTURE[9] =
 {
     "./images/planets/sunmap.jpg",
@@ -205,12 +218,12 @@ int main() {
     //src https://gifer.com/en/NKrn
 	// License: Creative Commons Attribution 3.0 Unported License.
 	// Filenames
-    const char *filenames[6] = {"images/space.jpg",
-                                "images/space.jpg",
-                                "images/space.jpg",
-                                "images/space.jpg",
-                                "images/space.jpg",
-                                "images/space.jpg"};
+    const char *filenames[6] = {"images/px.png",
+                                "images/nx.png",
+                                "images/py.png",
+                                "images/ny.png",
+                                "images/pz.png",
+                                "images/nz.png"};
 
 	// Load Cubemap
 	GLuint cubemap_texture = loadTextureCubeMap(filenames, x, y, n);
@@ -482,11 +495,11 @@ int main() {
             //get scale matrix
             scale(PLANET_SIZES[i], PLANET_SIZES[i], PLANET_SIZES[i], sc);
             //get translate matrix
-            translate((0.8f * (0.2 * i)), 0.0f, 0.0f, translation);
+            translate((0.8f * (0.4 * i)), 0.0f, 0.0f, translation);
             //get rotation around sun matrix
             rotateY(glfwGetTime() * PLANET_SPEED[i], rot_around);
             //get rotation around the y axis
-            rotateY(glfwGetTime(), rot_inplace);
+            rotateY(glfwGetTime() * 0.5, rot_inplace);
 
             //rotate and then translate
             multiply44(translation, rot_inplace, temp);
