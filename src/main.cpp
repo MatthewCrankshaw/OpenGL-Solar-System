@@ -202,19 +202,15 @@ int main() {
 	// Load Texture Map
 	int x, y, n;
 
-	// Teide Volcano on Tenerife Skybox Images
-	// Author: Emil Persson, aka Humus.
-	// URL: http://www.humus.name
+    //src https://gifer.com/en/NKrn
 	// License: Creative Commons Attribution 3.0 Unported License.
 	// Filenames
-
-
-    const char *filenames[6] = {"images/black.jpeg",
-                                "images/black.jpeg",
-                                "images/black.jpeg",
-                                "images/black.jpeg",
-                                "images/black.jpeg",
-                                "images/black.jpeg"};
+    const char *filenames[6] = {"images/space.jpg",
+                                "images/space.jpg",
+                                "images/space.jpg",
+                                "images/space.jpg",
+                                "images/space.jpg",
+                                "images/space.jpg"};
 
 	// Load Cubemap
 	GLuint cubemap_texture = loadTextureCubeMap(filenames, x, y, n);
