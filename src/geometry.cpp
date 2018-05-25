@@ -451,7 +451,7 @@ void createSphereData(std::vector<glm::vec4> &buffer, std::vector<glm::ivec3> &i
 		int offset1 = -sub2;
 
 		// Latitude
-		for(int i2 = 0; i2 < sub2; i2++) {
+		for(int i2 = 0; i2 <= sub2; i2++) {
 			// Phi [0, 2pi)
 			float phi = i2 * M_PI * 2.0 / sub2;
 
@@ -466,12 +466,6 @@ void createSphereData(std::vector<glm::vec4> &buffer, std::vector<glm::ivec3> &i
 			buffer.push_back(u);
 			buffer.push_back(glm::vec4(phi / (M_PI*2.0f), theta / M_PI, 0.0f, 1.0f));
 
-			if(i1 == sub1 - 1){
-                // Add position, normal and UV to buffer
-                buffer.push_back(p);
-                buffer.push_back(u);
-                buffer.push_back(glm::vec4(phi / (M_PI*2.0f), theta / M_PI, 0.0f, 1.0f));
-			}
 
 			// Latitude offset
 			int offset2 = (i2 < (sub2 - 1)) ? 1 : -(sub2 - 1);
@@ -485,11 +479,6 @@ void createSphereData(std::vector<glm::vec4> &buffer, std::vector<glm::ivec3> &i
 				indexes.push_back(glm::ivec3(k + offset1, k,           k + offset2));
 				indexes.push_back(glm::ivec3(k + offset1, k + offset2, k + offset1 + offset2));
 
-				if(i1 == sub1 - 1){
-                    //Add position, normal and UV to buffer
-                    indexes.push_back(glm::ivec3(k + offset1, k,           k + offset2));
-                    indexes.push_back(glm::ivec3(k + offset1, k + offset2, k + offset1 + offset2));
-                }
 
 			}
 		}

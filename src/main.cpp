@@ -272,7 +272,7 @@ int main() {
     vector<glm::vec4> sphere_buf;
 	vector<glm::ivec3> sphere_indices;
 
-	createSphereData(sphere_buf, sphere_indices, 0.1f, 200, 200);
+	createSphereData(sphere_buf, sphere_indices, 0.1f, 50, 50);
 
     //set up the vao, vbo and ebo for spheres
 	GLuint sphere_vao[NUM_SPHERES];
@@ -499,8 +499,8 @@ int main() {
             translate((0.8f * (0.4 * i)), 0.0f, 0.0f, translation);
 
             //get rotation around sun matrix
-            //rotateY(glfwGetTime() * PLANET_SPEED[i] + PLANET_START_LOC[i], rot_around);
-            rotateY(0, rot_around); // keep planets in a line
+            rotateY(glfwGetTime() * PLANET_SPEED[i] + PLANET_START_LOC[i], rot_around);
+            //rotateY(0, rot_around); // keep planets in a line
 
             //get rotation around the y axis
             rotateY(glfwGetTime() * 0.5, rot_inplace);
